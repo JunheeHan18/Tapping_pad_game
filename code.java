@@ -31,8 +31,8 @@ class mainFrame extends JFrame implements ActionListener {
 	public JButton startButton = new JButton("Game Start");
 	public JButton seeRankingButton = new JButton("See Ranking");
 	public JButton exitButton = new JButton("Exit");
-	public Font titleFont = new Font("¸¼Àº°íµñ", Font.BOLD, 30);
-	public Font textFont = new Font("¸¼Àº°íµñ",Font.BOLD, 20);
+	public Font titleFont = new Font("Â¸Â¼Ã€ÂºÂ°Ã­ÂµÃ±", Font.BOLD, 30);
+	public Font textFont = new Font("Â¸Â¼Ã€ÂºÂ°Ã­ÂµÃ±",Font.BOLD, 20);
  	
 	// game element
 	static int score = 0;

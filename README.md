@@ -3,8 +3,8 @@
 
 ![메인 화면 이미지](./1.jpg)
 
-Tapping Pad는 JAVA로 작성된 미니 게임입니다.
-화면은 JFrame GUI를, 게임 동작에는 Thread 등을 이용하여 제작하였습니다.
+##### Tapping Pad는 JAVA로 작성된 미니 게임입니다.
+##### 화면은 JFrame GUI를, 게임 동작에는 Thread 등을 이용하여 제작하였습니다.
 
 사용자는 메인 화면에서 3가지 버튼(Game Start, See Ranking, Exit)을 이용하여 각 기능들을 수행할 수 있습니다.
 
@@ -39,4 +39,9 @@ Score에 비례하여, Pad의 시작 시간은 점차 줄어들고, 결국 0.5�
 ![2](./3.jpg)
 
 게임이 끝나면, Game Over화면이 출력되고, 2가지 버튼(Restart, Go Title)과 함께 사용자의 score가 출력됩니다.
+
+동작의 핵심 코드는 다음과 같습니다
+
+![2](./code3.jpg)
+
 

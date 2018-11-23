@@ -1,4 +1,4 @@
-package Tappingpad;
+package tapping_pad;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -12,12 +12,18 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-@SuppressWarnings("serial")
 /*
- * 패드 게임
- * class : mainJFrame / Timer
- * function : gameStart, gameEnd, seeRanking, Exit, timer, run 
+ *   Pad click Game! 
+ * class : mainClass, mainFrame, Timer 
+ * function : mainFrame - 	gameStart, 
+ * 						-	gameEnd
+ * 						-	seeRanking
+ * 						-	Exit
+ * 
+ *			  Timer		-	run 
  */
+
+@SuppressWarnings("serial")
 class mainFrame extends JFrame implements ActionListener {
 	
 	// title element
@@ -36,16 +42,20 @@ class mainFrame extends JFrame implements ActionListener {
 	public static JLabel scoreLabel = new JLabel("score : "+Integer.toString(score));
 	public static JButton[] gameButton = new JButton[9];
 	
+	// see ranking element
+	String strBuffer = null;
+	int intBuffer;
+	String[] strAryBuffer = null;
+	int[] rankNum  = {0, 0, 0};
+	public static JLabel seeRankingLabel = new JLabel("Ranking");
+	public static JLabel[] rankingLabel = new JLabel[3];
+	
 	//  game end element
 	public static JLabel gameEndLabel = new JLabel("Game Over!!");
 	public static JLabel gameEndScoreLabel = new JLabel();
 	public static JButton restartButton = new JButton("Restart");
 	public static JButton goTitleButton = new JButton("Go Title");
 	
-	// seeRanking element
-	public static JLabel rankingLabel = new JLabel("Ranking");
-	public static JLabel ranking[] = new JLabel[3];
-	public static String scores;
 	public static FileWriter out = null;
 	public static FileReader in = null;
 	
@@ -73,7 +83,6 @@ class mainFrame extends JFrame implements ActionListener {
 		exitButton.setBounds(120, 270, 160, 40);
 		exitButton.setFont(textFont);
 		exitButton.setBackground(Color.LIGHT_GRAY);
-		exitButton.setRolloverIcon(null);
 		exitButton.addActionListener(this);
 		
 //		
@@ -90,7 +99,18 @@ class mainFrame extends JFrame implements ActionListener {
 		}
 		gameButton[ran].setBackground(Color.BLACK);
 		gameButton[ran].setForeground(Color.BLACK);
-
+		
+//
+//		see ranking element setting
+//		
+		seeRankingLabel.setBounds(140,50,150,50);
+		seeRankingLabel.setFont(titleFont);
+		for(int i=0 ; i<3 ; i++ ) {
+			rankingLabel[i] = new JLabel();
+			rankingLabel[i].setBounds(160, 130+i*40, 150, 30);
+			rankingLabel[i].setFont(textFont);
+		}
+		
 //		
 //		game end element setting
 //		 
@@ -117,11 +137,15 @@ class mainFrame extends JFrame implements ActionListener {
 		add(exitButton);
 		add(scoreLabel);
 		add(timeLabel);
+		add(seeRankingLabel);
+		for(int i=0;i<3;i++) {
+			add(rankingLabel[i]);
+		}
 		add(gameEndLabel);
 		add(gameEndScoreLabel);
 		add(restartButton);
 		add(goTitleButton);
-		for(int i = 0;i<9;i++) {
+		for(int i=0;i<9;i++) {
 			add(gameButton[i]);
 		}
 		
@@ -130,18 +154,26 @@ class mainFrame extends JFrame implements ActionListener {
 //		
 		scoreLabel.setVisible(false);
 		timeLabel.setVisible(false);
+		seeRankingLabel.setVisible(false);
+		for(int i=0;i<3;i++) {
+			rankingLabel[i].setVisible(false);
+		}
 		gameEndLabel.setVisible(false);
 		gameEndScoreLabel.setVisible(false);
 		restartButton.setVisible(false);
 		goTitleButton.setVisible(false);
-		for(int i = 0;i<9;i++) {
+		for(int i=0;i<9;i++) {
 			gameButton[i].setVisible(false);
 		}
 		
 		setVisible(true);
 	}
 	
+//	
+//	gameStart Button
+//	
 	public void gameStart() {
+		// Display setting
 		titleLabel.setVisible(false);
 		startButton.setVisible(false);
 		seeRankingButton.setVisible(false);
@@ -151,49 +183,84 @@ class mainFrame extends JFrame implements ActionListener {
 		}
 		scoreLabel.setVisible(true);
 		timeLabel.setVisible(true);
-
-		Timer.flag = true ;
-	}
-	
-	public void seeRanking() {
-		try {
-			
-			in = new FileReader("Ranking.txt");			
-            System.out.print(in.read());
-            in.close();	
-		} catch (IOException e) {}
-	}
-	
-	public static void gameEnd() {
-		gameEndScoreLabel.setText("score : "+Integer.toString(score));
-		try {
-			char ch =' ';
-			out = new FileWriter("Ranking.txt");	
-			for(int i = 0;ch == -1;i++) {
-			//	ch = String.format("%d",score)[i]
-
-			}
-			String.format("%d",score);
-			while ((ch = (char)in.read()) != -1) {
-			//	Str += ch;
-			}
-			scores = String.valueOf(in.read());
-			System.out.println(scores);
-            in.close();	
-            
-		} catch (IOException e) {
-			
-		}
-		try {	
-			out = new FileWriter("Ranking.txt"); 
-	        out.write(scores + score);
-			out.close();
-		} catch (IOException e) {}
 		
+		// Timer start
+		Timer.timerFlag = true ;
+	}
+	
+//	
+//	seeRanking Button
+//	
+	public void seeRanking() {
+		// Display setting
+		titleLabel.setVisible(false);
+		startButton.setVisible(false);
+		seeRankingButton.setVisible(false);
+		exitButton.setVisible(false);
+		
+		// Bring ranking file data
+		try {
+			in = new FileReader("Ranking.txt");	
+			strBuffer = "";
+			while((intBuffer = in.read()) != -1)
+				strBuffer += (char)intBuffer;
+            in.close();	
+		} catch (IOException e) {
+			System.out.println("IOException");
+		}
+		
+		strAryBuffer = strBuffer.split(" ");
+		
+		// Max value sorting
+		for(int i=0;i<strAryBuffer.length;i++) {
+			if(rankNum[0] < Integer.parseInt(strAryBuffer[i]))
+				rankNum[0] = Integer.parseInt(strAryBuffer[i]);
+		}
+		for(int i=0;i<strAryBuffer.length;i++) {
+			if(rankNum[1] < Integer.parseInt(strAryBuffer[i]) && rankNum[0] > Integer.parseInt(strAryBuffer[i])) 
+				rankNum[1] = Integer.parseInt(strAryBuffer[i]);
+		}
+		for(int i=0;i<strAryBuffer.length;i++) {
+			if(rankNum[2] < Integer.parseInt(strAryBuffer[i]) && rankNum[1] > Integer.parseInt(strAryBuffer[i])) 
+				rankNum[2] = Integer.parseInt(strAryBuffer[i]);
+		}
+		
+		rankingLabel[0].setText("1st  : "+Integer.toString(rankNum[0]));
+		rankingLabel[1].setText("2nd : "+Integer.toString(rankNum[1]));
+		rankingLabel[2].setText("3rd  : "+Integer.toString(rankNum[2]));
+		
+		// Display setting
+		seeRankingLabel.setVisible(true);
+		for(int i=0;i<3;i++) {
+			rankingLabel[i].setVisible(true);
+		}
+		goTitleButton.setBounds(140, 270, 120, 35);
+		goTitleButton.setVisible(true);
+	}
+	
+//	
+//	gameEnd function
+//	
+	public static void gameEnd() {
+		
+		gameEndScoreLabel.setText("score : "+Integer.toString(score));
+		
+		// Save game result
+		try {
+			out = new FileWriter("Ranking.txt", true);	
+			out.write(Integer.toString(score)+" ");
+            out.close();	
+		} catch (IOException e) {
+			System.out.println("IOException");
+		}
+		
+		// Data initialization
 		score = 0;
 		Timer.TimeValue = 5.00;
 		Timer.elapsedTime = Timer.TimeValue;
-		Timer.flag = false ;
+		Timer.timerFlag = false ;
+		
+		// Display setting
 		for(int i = 0;i<9;i++) {
 			gameButton[i].setVisible(false);
 		}
@@ -202,6 +269,7 @@ class mainFrame extends JFrame implements ActionListener {
 		gameEndLabel.setVisible(true);
 		gameEndScoreLabel.setVisible(true);
 		restartButton.setVisible(true);
+		goTitleButton.setBounds(210, 250, 120, 35);
 		goTitleButton.setVisible(true);
 	}
 	
@@ -221,20 +289,26 @@ class mainFrame extends JFrame implements ActionListener {
 		}
 		// Restart button activation
 		else if(e.getActionCommand().equals("Restart")){
+			// Display setting
 			gameEndLabel.setVisible(false);
 			gameEndScoreLabel.setVisible(false);
 			restartButton.setVisible(false);
 			goTitleButton.setVisible(false);
-			
 			for(int i = 0;i<9;i++) {
 				gameButton[i].setVisible(true);
 			}
 			scoreLabel.setVisible(true);
 			timeLabel.setVisible(true);
-			Timer.flag = true ;
+			// Timer Start
+			Timer.timerFlag = true ;
 		}
 		// Go Title button activation
 		else if(e.getActionCommand().equals("Go Title")){
+			// Display setting
+			seeRankingLabel.setVisible(false);
+			for(int i=0;i<3;i++) {
+				rankingLabel[i].setVisible(false);
+			}
 			gameEndLabel.setVisible(false);
 			gameEndScoreLabel.setVisible(false);
 			restartButton.setVisible(false);
@@ -256,7 +330,7 @@ class mainFrame extends JFrame implements ActionListener {
 			}
 			// Game Button activation setting
 			if(i == ran){
-				Timer.flag = false ;
+				Timer.timerFlag = false ;
 				score++;
 				scoreLabel.setText("score : "+Integer.toString(score));
 				gameButton[i].setBackground(Color.WHITE);
@@ -269,7 +343,7 @@ class mainFrame extends JFrame implements ActionListener {
 				if(Timer.TimeValue>0.5) {
 					Timer.TimeValue -= 0.1;
 				}
-				Timer.flag = true ;
+				Timer.timerFlag = true ;
 			}
 		}
 	}
@@ -278,14 +352,14 @@ class mainFrame extends JFrame implements ActionListener {
 class Timer extends Thread {
 	public static double TimeValue = 5.00;
 	public static double elapsedTime = TimeValue;
-	public static Boolean flag = false;
+	public static Boolean timerFlag = false;
 	
 	public Timer(){
 		start();
 	}
 	public void run() {
 		while(true) {
-			if(flag) {
+			if(timerFlag) {
 				elapsedTime -= 0.01;
 				mainFrame.timeLabel.setText(String.format("%.2f", elapsedTime));
 				mainFrame.timeLabel.setForeground(Color.WHITE);
